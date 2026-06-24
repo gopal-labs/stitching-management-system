@@ -7,46 +7,82 @@ function Dashboard({ setCurrentPage }) {
   const [customMessage, setCustomMessage] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // Fetch all administrative layout variables on view load
+  // Authentication States
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [authError, setAuthError] = useState('');
+
+  // Validate authentication token state on mount
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const [ordersRes, apptsRes, statusRes] = await Promise.all([
-          fetch('http://localhost:5000/api/orders'),
-          fetch('http://localhost:5000/api/appointments'),
-          fetch('http://localhost:5000/api/status')
-        ]);
-
-        const ordersData = await ordersRes.json();
-        const apptsData = await apptsRes.json();
-        const statusData = await statusRes.json();
-
-        setOrders(ordersData);
-        setAppointments(apptsData);
-        setShopStatus(statusData);
-        setCustomMessage(statusData.message);
-        setLoading(false);
-      } catch (err) {
-        console.error("Error loading dashboard modules:", err);
-        setLoading(false);
-      }
-    };
-
-    fetchDashboardData();
+    const token = localStorage.getItem('adminToken');
+    if (token) {
+      setIsAuthenticated(true);
+      fetchDashboardData();
+    } else {
+      setLoading(false);
+    }
   }, []);
 
-  // Dispatch a network action to change her shop's real-time availability
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      const [ordersRes, apptsRes, statusRes] = await Promise.all([
+        fetch('http://localhost:5000/api/orders'),
+        fetch('http://localhost:5000/api/appointments'),
+        fetch('http://localhost:5000/api/status')
+      ]);
+
+      const ordersData = await ordersRes.json();
+      const apptsData = await apptsRes.json();
+      const statusData = await statusRes.json();
+
+      setOrders(ordersData);
+      setAppointments(apptsData);
+      setShopStatus(statusData);
+      setCustomMessage(statusData.message);
+      setLoading(false);
+    } catch (err) {
+      console.error("Error loading dashboard modules:", err);
+      setLoading(false);
+    }
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setAuthError('');
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem('adminToken', data.token);
+        setIsAuthenticated(true);
+        fetchDashboardData();
+      } else {
+        setAuthError(data.message || 'Authentication rejected.');
+      }
+    } catch (err) {
+      setAuthError('Cannot connect to authorization server.');
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('adminToken');
+    setIsAuthenticated(false);
+  };
+
   const handleStatusToggle = async (newToggleState) => {
     try {
       const response = await fetch('http://localhost:5000/api/status', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          isAcceptingOrders: newToggleState,
-          customMessage: customMessage
-        })
+        body: JSON.stringify({ isAcceptingOrders: newToggleState, customMessage })
       });
-
       if (response.ok) {
         setShopStatus(prev => ({ ...prev, isAcceptingOrders: newToggleState, message: customMessage }));
         alert("✨ Shop availability updated successfully!");
@@ -56,60 +92,67 @@ function Dashboard({ setCurrentPage }) {
     }
   };
 
-  // 🚀 1. PASTED FUNCTION: Handles updating state and sending PUT request to backend
   const handleApproveOrder = async (orderId) => {
     try {
       const response = await fetch(`http://localhost:5000/api/orders/${orderId}/approve`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' }
       });
-
       if (response.ok) {
-        // Loops through your orders state array and updates orderStatus locally instantly
-        setOrders(prevOrders => 
-          prevOrders.map(order => 
-            order._id === orderId ? { ...order, orderStatus: 'Approved' } : order
-          )
-        );
+        setOrders(prev => prev.map(o => o._id === orderId ? { ...o, orderStatus: 'Approved' } : o));
       } else {
         alert('❌ Failed to approve order.');
       }
     } catch (err) {
-      console.error('Error approving order:', err);
       alert('❌ Connection to server failed.');
     }
   };
 
-  if (loading) return <div style={{ textAlign: 'center', marginTop: '50px', color: '#666', fontFamily: 'sans-serif' }}>Loading Dashboard Data Modules...</div>;
+  if (loading) return <div style={{ textAlign: 'center', marginTop: '50px', color: '#666', fontFamily: 'sans-serif' }}>Loading Secure Shell...</div>;
 
+  // 🔒 RENDER LOGIN FORM IF NOT AUTHENTICATED
+  if (!isAuthenticated) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh', fontFamily: 'sans-serif', backgroundColor: '#fff5f7' }}>
+        <form onSubmit={handleLogin} style={{ backgroundColor: '#fff', padding: '40px', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.08)', width: '100%', maxWidth: '400px' }}>
+          <h2 style={{ color: '#c2185b', margin: '0 0 10px 0', textAlign: 'center' }}>Admin Access Portal</h2>
+          <p style={{ color: '#666', fontSize: '0.88rem', textCenter: 'center', marginBottom: '25px', textAlign: 'center' }}>Please verify credentials to manage your store lines.</p>
+          
+          {authError && <div style={{ color: '#c62828', backgroundColor: '#ffebee', padding: '10px', borderRadius: '4px', fontSize: '0.85rem', marginBottom: '15px', fontWeight: 'bold' }}>⚠️ {authError}</div>}
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '15px' }}>
+            <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#333' }}>Username:</label>
+            <input type="text" required value={username} onChange={e => setUsername(e.target.value)} style={{ padding: '10px', borderRadius: '6px', border: '1px solid #ccc', outline: 'none' }} />
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '25px' }}>
+            <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#333' }}>Password:</label>
+            <input type="password" required value={password} onChange={e => setPassword(e.target.value)} style={{ padding: '10px', borderRadius: '6px', border: '1px solid #ccc', outline: 'none' }} />
+          </div>
+
+          <button type="submit" style={{ width: '100%', padding: '12px', backgroundColor: '#c2185b', color: 'white', border: 'none', borderRadius: '6px', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer' }}>Unlock Deck</button>
+        </form>
+      </div>
+    );
+  }
+
+  // 🔓 STANDARD SECURE DASHBOARD UI VIEW
   return (
-    <div style={{ 
-      width: '100%', 
-      fontFamily: 'sans-serif', 
-      boxSizing: 'border-box',
-      display: 'flex',
-      flexDirection: 'column',
-      padding: '40px 20px'
-    }}>
+    <div style={{ width: '100%', fontFamily: 'sans-serif', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', padding: '40px 20px' }}>
       
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #ddd', paddingBottom: '15px', marginBottom: '30px' }}>
         <div>
-          <h1 style={{ color: '#c2185b', margin: '0', fontSize: '2rem' }}>Shop Management Deck</h1>
+          <h1 style={{ color: '#c2185b', margin: '0', fontSize: '2rem' }}>Mother's Shop Management Deck</h1>
           <p style={{ color: '#666', margin: '5px 0 0 0' }}>Track stitching queues, customer records, and system settings.</p>
         </div>
-        <button onClick={() => setCurrentPage('home')} style={{
-            background: '#c2185b',
-            border: 'none',
-            color: '#ffffff',
-            cursor: 'pointer',
-            fontSize: '0.95rem',
-            fontWeight: 'bold',
-            padding: '10px 16px',
-            borderRadius: '6px',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
-          }}>
-          View Public Homepage →
-        </button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button onClick={handleLogout} style={{ background: '#666', border: 'none', color: '#ffffff', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 'bold', padding: '10px 16px', borderRadius: '6px' }}>
+            Logout 🔒
+          </button>
+          <button onClick={() => setCurrentPage('home')} style={{ background: '#c2185b', border: 'none', color: '#ffffff', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 'bold', padding: '10px 16px', borderRadius: '6px' }}>
+            View Public Homepage →
+          </button>
+        </div>
       </header>
 
       {/* SECTION 1: LIVE SHOP CAPACITY TOGGLE CARD */}
@@ -165,39 +208,14 @@ function Dashboard({ setCurrentPage }) {
                     <td style={{ padding: '12px', fontSize: '0.85rem', color: '#333' }}>
                       Len: {order.measurements?.length || '-'} | Ch: {order.measurements?.chest || '-'} | Wst: {order.measurements?.waist || '-'} | Shld: {order.measurements?.shoulder || '-'} | Hip: {order.measurements?.hips || '-'}
                     </td>
-                    
-                    {/* 🚀 2. PASTED LAYOUT IN CELL: Dynamically updates layout and provides Approve Button */}
                     <td style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-start' }}>
-                      <span style={{ 
-                        padding: '4px 8px', 
-                        borderRadius: '4px', 
-                        fontSize: '0.8rem', 
-                        backgroundColor: order.orderStatus === 'Pending' ? '#fff3e0' : '#e8f5e9', 
-                        color: order.orderStatus === 'Pending' ? '#e65100' : '#2e7d32', 
-                        fontWeight: 'bold' 
-                      }}>
+                      <span style={{ padding: '4px 8px', borderRadius: '4px', fontSize: '0.8rem', backgroundColor: order.orderStatus === 'Pending' ? '#fff3e0' : '#e8f5e9', color: order.orderStatus === 'Pending' ? '#e65100' : '#2e7d32', fontWeight: 'bold' }}>
                         {order.orderStatus}
                       </span>
-                      
                       {order.orderStatus === 'Pending' && (
-                        <button
-                          onClick={() => handleApproveOrder(order._id)}
-                          style={{
-                            padding: '6px 12px',
-                            backgroundColor: '#2e7d32',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                            fontSize: '0.8rem',
-                            fontWeight: 'bold'
-                          }}
-                        >
-                          ✓ Approve
-                        </button>
+                        <button onClick={() => handleApproveOrder(order._id)} style={{ padding: '6px 12px', backgroundColor: '#2e7d32', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 'bold' }}>✓ Approve</button>
                       )}
                     </td>
-
                   </tr>
                 ))
               )}

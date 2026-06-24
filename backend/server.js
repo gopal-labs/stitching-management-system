@@ -3,6 +3,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db.js');
 
+
 // 1. Load environment variables from .env
 dotenv.config();
 
@@ -24,7 +25,7 @@ app.get('/api/test', (req, res) => {
 app.use('/api/orders', require('./routes/orderRoutes'));
 app.use('/api/appointments', require('./routes/appointmentRoutes'));
 app.use('/api/status', require('./routes/statusRoutes'));
-
+app.use('/api/auth', require('./routes/authRoutes'));
 // 6. Define the running port
 const PORT = process.env.PORT || 5000;
 
