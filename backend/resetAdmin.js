@@ -11,7 +11,7 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/boutique')
     await Admin.deleteMany({ username: 'admin' });
 
     // 2. Hash your password cleanly
-    const plaintextPassword = 'gopal29'; // 💡 This is your EXACT password
+    const plaintextPassword = process.env.pass ; // 💡 This is your EXACT password
     const hashedPassword = await bcrypt.hash(plaintextPassword, 10);
     
     // 3. Create the clean account entry

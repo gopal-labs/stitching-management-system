@@ -14,7 +14,7 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/boutique')
     }
 
     // Hash the secure password before saving it
-    const hashedPassword = await bcrypt.hash('gopal29', 10); // 💡 Change password here
+    const hashedPassword = await bcrypt.hash(process.env.pass, 10); // 💡 Change password here
     
     await Admin.create({
       username: 'admin',
