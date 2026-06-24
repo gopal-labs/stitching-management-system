@@ -1,0 +1,5 @@
+# System Environment Requirements
+Node.js >= 18.0.0
+npm >= 9.0.0
+MongoDB Community Server >= 6.0.0
+MongoDB Compass >= 1.36.0
