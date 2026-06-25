@@ -39,7 +39,7 @@ We plan to elevate this platform from a workflow manager into an immersive, AI-d
 * **Natural Intent Mapping:** Integration with natural language processors trained on regional vocabulary (e.g., *naap*, *kapda*, *silwai*) to map diverse user phrasing directly to backend booking handlers.
 * **Automated Slot Reservation:** Allow customers to check availability, book physical measurement appointments, and track order queues completely via automated chat interfaces.
 
-### 👗 2. AI Virtual Changing Room (Try-On Engine)
+### 👗 2. AI Virtual Try Room (Try-On Engine)
 * **Photo-to-Design Mapping:** A deep-learning-based visual pipeline where clients can upload a clear portrait of themselves.
 * **Virtual Garment Stitching:** Utilizing advanced Generative Adversarial Networks (GANs) or diffusion-based virtual try-on models to overlay selected catalog designs onto the user's uploaded photo.
 * **Instant Visual Preview:** Customers will see a photorealistic rendering of how the finalized, stitched garment will drape and look on their exact body shape before placing their order.
