@@ -146,7 +146,7 @@ function Dashboard({ setCurrentPage }) {
       
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #ddd', paddingBottom: '15px', marginBottom: '30px' }}>
         <div>
-          <h1 style={{ color: '#c2185b', margin: '0', fontSize: '2rem' }}>Mother's Shop Management Deck</h1>
+          <h1 style={{ color: '#c2185b', margin: '0', fontSize: '2rem' }}>Shop Management Deck</h1>
           <p style={{ color: '#666', margin: '5px 0 0 0' }}>Track stitching queues, customer records, and system settings.</p>
         </div>
         <div style={{ display: 'flex', gap: '10px' }}>
