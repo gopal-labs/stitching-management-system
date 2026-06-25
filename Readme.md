@@ -2,6 +2,8 @@
 
 A production-ready full-stack web application built to modernize local boutique workflows. This platform enables clients to check design catalogs and book measurement slots, while providing the shop owner with an interactive administrative control deck to manage ongoing custom tailoring lines and real-time shop capacity.
 
+🔗 **Live Production URL:** [https://ladiestailor.onrender.com/](https://ladiestailor.onrender.com/)
+
 ---
 
 ## 🚀 Core Features
@@ -53,3 +55,61 @@ Ensure you have **Node.js (v18+)** and **MongoDB** installed locally on your sys
 ```bash
 git clone [https://github.com/YOUR_USERNAME/ladies-tailor-boutique.git](https://github.com/YOUR_USERNAME/ladies-tailor-boutique.git)
 cd ladies-tailor-boutique
+```
+### 3. Backend Setup
+
+Navigate into the backend subdirectory:
+
+```bash
+cd backend
+```
+
+Install all core server dependencies:
+
+```bash
+npm install
+```
+
+Create a `.env` file inside the `backend/` directory and configure your keys:
+
+```env
+PORT=5000
+NODE_ENV=development
+MONGO_URI=mongodb+srv://<username>:<password>@cluster0.xxxx.mongodb.net/boutique
+JWT_SECRET=YOUR_LOCAL_COMPLEX_SECRET_STRING_XYZ
+FRONTEND_URL=http://localhost:5173
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=adminpassword
+```
+
+Start the backend development server:
+
+```bash
+npm start
+```
+
+### 4. Frontend Setup
+
+Open a new terminal window, navigate back to the project root, and step into the frontend directory:
+
+```bash
+cd frontend
+```
+
+Install all reactive browser client packages:
+
+```bash
+npm install
+```
+
+Create a `.env` file inside the `frontend/` directory to guide local API mapping:
+
+```env
+VITE_API_BASE_URL=http://localhost:5000
+```
+
+Start the Vite local optimization server:
+
+```bash
+npm run dev
+```
