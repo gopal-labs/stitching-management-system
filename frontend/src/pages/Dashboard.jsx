@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
+// 🌐 Dynamic API URL allocation (Uses Vite env variable if deployed, falls back to local machine)
+// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 function Dashboard({ setCurrentPage }) {
   const [orders, setOrders] = useState([]);
   const [appointments, setAppointments] = useState([]);
@@ -27,10 +30,11 @@ function Dashboard({ setCurrentPage }) {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
+      // Clean dynamic fetch array routing
       const [ordersRes, apptsRes, statusRes] = await Promise.all([
-        fetch('http://localhost:5000/api/orders'),
-        fetch('http://localhost:5000/api/appointments'),
-        fetch('http://localhost:5000/api/status')
+        fetch(`${API_BASE_URL}/api/orders`),
+        fetch(`${API_BASE_URL}/api/appointments`),
+        fetch(`${API_BASE_URL}/api/status`)
       ]);
 
       const ordersData = await ordersRes.json();
@@ -52,7 +56,7 @@ function Dashboard({ setCurrentPage }) {
     e.preventDefault();
     setAuthError('');
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
@@ -78,7 +82,7 @@ function Dashboard({ setCurrentPage }) {
 
   const handleStatusToggle = async (newToggleState) => {
     try {
-      const response = await fetch('http://localhost:5000/api/status', {
+      const response = await fetch(`${API_BASE_URL}/api/status`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isAcceptingOrders: newToggleState, customMessage })
@@ -94,7 +98,7 @@ function Dashboard({ setCurrentPage }) {
 
   const handleApproveOrder = async (orderId) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/orders/${orderId}/approve`, {
+      const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}/approve`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' }
       });
@@ -110,13 +114,13 @@ function Dashboard({ setCurrentPage }) {
 
   if (loading) return <div style={{ textAlign: 'center', marginTop: '50px', color: '#666', fontFamily: 'sans-serif' }}>Loading Secure Shell...</div>;
 
-  // 🔒 RENDER LOGIN FORM IF NOT AUTHENTICATED
+  
   if (!isAuthenticated) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh', fontFamily: 'sans-serif', backgroundColor: '#fff5f7' }}>
         <form onSubmit={handleLogin} style={{ backgroundColor: '#fff', padding: '40px', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.08)', width: '100%', maxWidth: '400px' }}>
           <h2 style={{ color: '#c2185b', margin: '0 0 10px 0', textAlign: 'center' }}>Admin Access Portal</h2>
-          <p style={{ color: '#666', fontSize: '0.88rem', textCenter: 'center', marginBottom: '25px', textAlign: 'center' }}>Please verify credentials to manage your store lines.</p>
+          <p style={{ color: '#666', fontSize: '0.88rem', marginBottom: '25px', textAlign: 'center' }}>Please verify credentials to manage your store lines.</p>
           
           {authError && <div style={{ color: '#c62828', backgroundColor: '#ffebee', padding: '10px', borderRadius: '4px', fontSize: '0.85rem', marginBottom: '15px', fontWeight: 'bold' }}>⚠️ {authError}</div>}
           

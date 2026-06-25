@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 function MeasurementForm({ setCurrentPage, selectedCategory, selectedDesignId }) {
   // 1. Personal details state
   const [customerName, setCustomerName] = useState('');
@@ -37,7 +37,7 @@ function MeasurementForm({ setCurrentPage, selectedCategory, selectedDesignId })
     };
 
     try {
-      const response = await fetch('http://localhost:5000/api/orders', {
+      const response = await fetch('${API_BASE_URL}/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData)

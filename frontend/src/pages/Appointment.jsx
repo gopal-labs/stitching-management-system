@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 function Appointment({ setCurrentPage }) {
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
@@ -20,7 +20,7 @@ function Appointment({ setCurrentPage }) {
     };
 
     try {
-      const response = await fetch('http://localhost:5000/api/appointments', {
+      const response = await fetch('${API_BASE_URL}/api/appointments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(bookingData)
