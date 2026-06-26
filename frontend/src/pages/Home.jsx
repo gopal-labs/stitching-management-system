@@ -5,7 +5,7 @@ import lehengaImg from '../assets/lehenga.jpg';
 import blouseImg from '../assets/Blouse.jpg';
 import anarkaliImg from '../assets/anarkali.jpg';
 import kurtiImg from '../assets/kurti.jpg';
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 function Home({ setCurrentPage }) {
   const [shopStatus, setShopStatus] = useState({ isAcceptingOrders: true, message: "Loading status..." });
@@ -35,7 +35,7 @@ function Home({ setCurrentPage }) {
   };
 
   useEffect(() => {
-    fetch('${API_BASE_URL}/api/status')
+    fetch(`${API_BASE_URL}/api/status`)
       .then(res => res.json())
       .then(data => setShopStatus(data))
       .catch(err => {
